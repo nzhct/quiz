@@ -1,0 +1,84 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Тест</title>
+    <link rel="icon" href="static/quiz/favicon.ico">
+    <link rel="stylesheet" href="{% static 'index_static/css/index.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  </head>
+  <body>
+
+    <div id="app">
+      <div class="container mt-5 pt-5">
+        <div class="col-md-6 mx-auto">
+          <h3>Тест</h3>
+          <div v-for="question in questions">
+          <hr>
+          <p>[[question.question]]</p>
+          <div class="form-check mama" v-for="answer in question.answers">
+            <label class="form-check-label" for="flexRadioDefault1">
+              <input @change="checkAnswer($event, question.uid)" :value="answer.answer" class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+              [[answer.answer]]
+            </label>
+          </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+
+
+    <script>
+
+      var app = new Vue({
+        el: '#app',
+        delimiters: ['[[', ']]'],
+        data() {
+          return {
+            'questions': []
+
+          }
+        },
+        methods: {
+          getQuestions(){
+            var _this = this
+            fetch('/api/get-quiz/')
+            .then(response => response.json())
+            .then(result =>{
+              console.log(result)
+              _this.questions = result.data
+            })
+          },
+          checkAnswer(event, uid){
+            this.questions.map(question =>{
+              answers = question.answers
+              for(var i=0;i < answers.length ; i++){
+                if (answers[i].answer == event.target.value){
+                  if(answers[i].is_correct){
+                    console.log('Поздравляю, Вы выбрали верный ответ');
+                    alert('Поздравляю, Вы выбрали верный ответ');
+                  }else{
+                    console.log('К сожалению, Вы выбрали не верный ответ');
+                    alert('К сожалению, Вы выбрали не верный ответ');
+                  }
+                }
+              }
+            })
+            console.log(event.target.value, uid)
+          }
+        },
+        created() {
+          this.getQuestions()
+
+        },
+      });
+
+
+
+    </script>
+  </body>
+</html>
